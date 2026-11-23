@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+ <meta name="theme-color" content="#f4f0e7">
+ <meta name="description" content="城西尋影：尋找萬華昔日建築，透過老照片與現代街道地圖完成實境尋影。">
+ <title>城西尋影｜昔日街景尋影地圖</title>
+ <link rel="stylesheet" href="style.css?v=8">
+</head>
+<body>
+ <div id="app">
+  <header class="topbar">
+   <div class="identity"><div class="seal" aria-hidden="true">影</div><div><h1>城西尋影</h1><p>萬華歷史影像・城市尋跡</p></div></div>
+   <div class="top-actions"><button class="small-action" id="demoBtn" title="試玩打卡模式">試玩</button><button class="passport-quick" id="passportBtn"><span id="doneCount">0</span><span class="count-sep">/ 8 景</span> <span class="passport-caption">護照</span></button></div>
+  </header>
+  <main class="stage">
+   <div id="map" class="map" aria-label="萬華現代街道地圖，點選建築標記即可開始尋影" role="application">
+    <div id="tileLayer" class="tiles" aria-hidden="true"></div>
+    <svg id="routeLayer" class="route-layer" aria-hidden="true" preserveAspectRatio="none"><polyline id="routeOutline" class="route-outline" points=""/><polyline id="routeLine" class="route-line" points=""/></svg>
+    <div id="pinLayer" class="pin-layer"></div>
+   </div>
+   <div class="map-instruction" id="mapInstruction">在地圖上選一處歷史地點，開始尋影</div>
+   <div class="map-tools">
+    <button id="locateBtn" class="map-tool gps" aria-label="定位我的位置並顯示尋影目標" title="我的位置">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v4m0 12v4M2 12h4m12 0h4M12 6a6 6 0 1 0 0 12 6 6 0 0 0 0-12z"/></svg>
+    </button>
+    <button id="allBtn" class="map-tool" aria-label="顯示全部景點" title="顯示全部景點">⌗</button>
+    <button id="zoomIn" class="map-tool" aria-label="放大地圖">＋</button>
+    <button id="zoomOut" class="map-tool" aria-label="縮小地圖">－</button>
+   </div>
+   <div class="map-credit">© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors</div>
+   <div id="mapWarning" class="map-warning hidden"><b>街道底圖暫時無法載入</b><span>網路異常時請使用下方的外部導航，勿依空白地圖判斷路線。</span></div>
+   <section id="blankCard" class="blank-card">
+     <div class="blank-symbol">⌖</div><div><h2>去尋找一座昔日的建築</h2><p>點擊地圖上的標記，老照片與步行路線就會一起出現。</p></div>
+   </section>
+   <section id="siteCard" class="site-card hidden" aria-label="目前尋影目標">
+    <button id="cardThumbButton" class="thumb-button" aria-label="放大老照片"><img id="cardThumb" alt=""/><span id="cardThumbEmpty" class="thumb-missing hidden">待補<br>老照片</span></button>
+    <div class="card-body">
+     <div class="card-eyebrow"><span id="cardEra">歷史年代</span><span id="cardDistance">等待定位</span></div>
+     <h2 id="cardName">歷史建築名稱</h2>
+     <p id="cardStory" class="card-story"></p>
+     <div class="route-summary" id="routeSummary">點選後自動規劃步行路線</div>
+     <div class="card-actions">
+       <button id="viewPhotoBtn" class="secondary-btn">看老照片</button>
+       <button id="checkBtn" class="primary-btn" disabled>到點打卡</button>
+       <a id="externalRoute" class="small-link" href="#" target="_blank" rel="noopener noreferrer">外部導航 ↗</a>
+     </div>
+    </div>
+   </section>
+  </main>
+ </div>
+
+ <div id="photoOverlay" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="photoTitle">
+  <div class="photo-sheet">
+   <div class="sheet-header"><div><span class="sheet-kicker" id="photoEra"></span><h2 id="photoTitle"></h2></div><button id="photoClose" class="close-btn" aria-label="關閉照片，回到地圖">×</button></div>
+   <div class="photo-large"><img id="photoLarge" alt=""/><p id="photoMissing" class="hidden">這一景的館藏老照片尚待放入。</p><button id="playVideoBtn" class="video-overlay-button hidden">▷ 看動圖</button></div>
+   <p id="photoStory" class="photo-story"></p>
+   <p id="photoNow" class="photo-context"></p>
+   <a id="archiveLink" class="archive-link" href="#" target="_blank" rel="noopener noreferrer">查看臺北市立圖書館館藏來源 ↗</a>
+   <button id="photoReturn" class="return-map">返回地圖，繼續尋找</button>
+  </div>
+ </div>
+
+ <div id="arriveOverlay" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="arriveTitle">
+  <div class="arrival-box"><div class="arrival-icon">◎</div><p class="sheet-kicker">GPS / 到達指定範圍</p><h2 id="arriveTitle">已到達！</h2><p id="arriveName"></p><div class="arrival-actions"><button id="arriveLater" class="secondary-btn">稍後再打卡</button><button id="arriveConfirm" class="primary-btn">確認打卡</button></div></div>
+ </div>
+
+ <div id="passportOverlay" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="passportTitle">
+  <div class="passport-sheet"><div class="sheet-header"><div><span class="sheet-kicker">COLLECTION / 城西尋影</span><h2 id="passportTitle">尋影護照</h2></div><button id="passportClose" class="close-btn" aria-label="關閉護照">×</button></div><p class="passport-lead" id="passportLead">完成尋影後，返回臺北市立文獻館依現場規則兌換獎品。</p><div class="passport-grid" id="passportGrid"></div><p class="passport-note" id="passportNote"></p></div>
+ </div>
+
+ <div id="movieOverlay" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="movieTitle">
+  <div class="movie-sheet"><div class="sheet-header"><div><span class="sheet-kicker">歷史影像 / AI 情境重現</span><h2 id="movieTitle">歷史重現影片</h2></div><button id="movieClose" class="close-btn" aria-label="關閉影片">×</button></div><video id="moviePlayer" controls playsinline preload="metadata"></video><p>本影片為依史料製作的 AI 情境重現，不代表精準的歷史實況攝影。</p></div>
+ </div>
+ <div id="toast" class="toast hidden" role="status"></div>
+ <script src="app.js?v=8" defer></script>
+</body>
+</html>
